@@ -7,9 +7,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from app.database import get_db
-from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
+from app.schemas.user import UserCreate, UserResponse, Token
 from app.crud.user import get_user_by_email, create_user, authenticate_user
 from app.core.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.dependencies import get_current_user
+from app.models.user import User
 
 router = APIRouter(
     prefix="/auth",      # all routes here start with /auth
@@ -66,6 +68,6 @@ def login(user_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 
 @router.get("/me", response_model=UserResponse)
-def get_me(db: Session = Depends(get_db)):
-    """Placeholder — will be wired with auth dependency in next step"""
-    pass
+def get_me(current_user: User = Depends(get_current_user)):
+    """Return the authenticated user's profile."""
+    return current_user
